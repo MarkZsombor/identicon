@@ -13,6 +13,7 @@ defmodule Identicon do
     |> pick_color
     |> build_grid
     |> filter_odd
+    |> build_pixel_map
   end
   
   @doc """
@@ -67,11 +68,31 @@ defmodule Identicon do
   @doc """
     Filters out items from a list with an odd value
   """
+
   def filter_odd(%Identicon.Image{grid: grid} = image) do
     grid = Enum.filter grid, fn({code, _i}) -> 
       rem(code, 2) == 0
     end
 
     %Identicon.Image{image | grid: grid}
+  end
+
+  @doc """
+    Generates the coords for a 5x5 grid image based on list of tuples
+  """
+
+  def build_pixel_map(%Identicon.Image{grid: grid} = image) do
+    pixel_coords = Enum.map grid, fn({_, index}) ->
+      # Calculate the top right and bottom right corners for a 50x50 pix square
+      hor = rem(index, 5) * 50
+      vert = div(index, 5) * 50
+
+      top_left = {hor, vert}
+      bottom_right = {hor + 50, vert + 50}
+
+      {top_left, bottom_right}
+    end
+
+    %Identicon.Image{image | pixel_coords: pixel_coords}
   end
 end
