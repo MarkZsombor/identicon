@@ -14,6 +14,8 @@ defmodule Identicon do
     |> build_grid
     |> filter_odd
     |> build_pixel_map
+    |> draw_image
+    |> save_image(input)
   end
   
   @doc """
@@ -94,5 +96,30 @@ defmodule Identicon do
     end
 
     %Identicon.Image{image | pixel_coords: pixel_coords}
+  end
+
+  @doc """
+    Creates an image
+  """
+
+  def draw_image(%Identicon.Image{color: color, pixel_coords: pixel_coords}) do
+    # Use the erlang EGD module
+    # http://erlang.org/documentation/doc-6.1/lib/percept-0.8.9/doc/html/egd.html
+    image = :egd.create(250, 250)
+    fill = :egd.color(color)
+
+    Enum.each pixel_coords, fn({start, stop}) ->
+      :egd.filledRectangle(image, start, stop, fill)
+    end
+
+    :egd.render(image)
+  end
+
+  @doc """
+    Saves image to file
+  """
+
+  def save_image(image, filename) do 
+    File.write("#{filename}.png", image)
   end
 end
