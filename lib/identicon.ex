@@ -12,6 +12,7 @@ defmodule Identicon do
     |> hash_input
     |> pick_color
     |> build_grid
+    |> filter_odd
   end
   
   @doc """
@@ -61,5 +62,16 @@ defmodule Identicon do
     [a , b | _] = list
 
     list ++ [b, a]
+  end
+
+  @doc """
+    Filters out items from a list with an odd value
+  """
+  def filter_odd(%Identicon.Image{grid: grid} = image) do
+    grid = Enum.filter grid, fn({code, _i}) -> 
+      rem(code, 2) == 0
+    end
+
+    %Identicon.Image{image | grid: grid}
   end
 end
