@@ -11,6 +11,7 @@ defmodule Identicon do
     input
     |> hash_input
     |> pick_color
+    |> build_grid
   end
   
   @doc """
@@ -33,4 +34,32 @@ defmodule Identicon do
     %Identicon.Image{image | color: {r, g, b}}
   end
 
+  @doc """
+    Determines a grid of values based on a struct input
+  """
+
+  def build_grid(%Identicon.Image{seed: seed} = image) do
+    grid = 
+      seed
+      # Breaks list into list of lists length 3
+      |> Enum.chunk_every(3, 3, :discard)
+      # to feed function into map need the &fn/arity
+      |> Enum.map(&mirror_list/1)
+      # Turns the list of lists into a single list
+      |> List.flatten
+      # Adds index to the list for referencing
+      |> Enum.with_index
+
+    %Identicon.Image{image | grid: grid}
+  end
+
+  @doc """
+    takes a list of 3 and returns a new list of 5 that has been mirrored
+  """
+
+  def mirror_list(list) do
+    [a , b | _] = list
+
+    list ++ [b, a]
+  end
 end
